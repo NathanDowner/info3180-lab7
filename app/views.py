@@ -6,7 +6,8 @@ This file creates your application.
 """
 
 from app import app
-from flask import render_template, request
+from flask import render_template, request, jsonify
+from app.forms import UploadForm
 
 ###
 # Routing for your application.
@@ -29,6 +30,12 @@ def index(path):
     return render_template('index.html')
 
 
+@app.route('/api/', methods=['POST'])
+def upload():
+    form = UploadForm()
+    
+
+
 # Here we define a function to collect form errors from Flask-WTF
 # which we can later use
 def form_errors(form):
@@ -37,9 +44,9 @@ def form_errors(form):
     for field, errors in form.errors.items():
         for error in errors:
             message = u"Error in the %s field - %s" % (
-                    getattr(form, field).label.text,
-                    error
-                )
+                getattr(form, field).label.text,
+                error
+            )
             error_messages.append(message)
 
     return error_messages
