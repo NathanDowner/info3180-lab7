@@ -33,19 +33,19 @@ def index(path):
     return render_template('index.html')
 
 
-@app.route('/api/', methods=['POST'])
+@app.route('/api/upload', methods=['POST'])
 def upload():
     form = UploadForm()
 
     if form.validate_on_submit():
-        file = form.image.data
+        file = form.photo.data
         filename = secure_filename(file.filename)
         file.save(os.path.join(path, filename))
 
         return  jsonify(
-            message="File Upload Successful",
-            filename=filename,
-            description=form.description.data)
+            message ="File Upload Successful",
+            filename = filename,
+            description = form.description.data)
     else: 
         return jsonify(errors = form_errors(form))
     

@@ -12,10 +12,49 @@ Vue.component('app-header', {
           <li class="nav-item active">
             <router-link class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
           </li>
+          <li class="nav-item">
+            <router-link class="nav-link" to="/upload">Upload <span class="sr-only"></span></router-link>
+          </li>
         </ul>
       </div>
     </nav>
     `
+});
+
+const Upload = Vue.component('upload-form', {
+    template:`
+    <form method="POST" enctype="multipart/form-data" @submit.prevent="uploadPhoto" id="uploadForm">
+        <div class="form-group shadow-textarea">
+            <label for="description">Description</label>
+            <textarea class="form-control z-depth-1" id="description" name="description" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="photo">Photo</label>
+            <input type="file" class="form-control" id="photo" name="photo"/>
+        </div>
+
+        <button class=btn btn-primary btn-block my-4 type="submit" name="submit">Submit</button>
+    </form>
+    `,
+    methods: {
+        uploadPhoto: function() {
+            let uploadForm = document.querySelector('#uploadForm');
+            let form_data = new FormData(uploadForm);
+
+            fetch("/api/upload",{
+                method: 'POST',
+                body: form_data,
+                headers: {
+                    'X-CSRFToken': token
+                },
+                credentials: 'same-origin'
+            })
+            .then(resp => resp.json())
+            .then(jsonResponse => {
+                console.log(jsonResponse);
+            }).catch(err => console.log(err));
+        }
+    }
 });
 
 Vue.component('app-footer', {
@@ -57,7 +96,7 @@ const router = new VueRouter({
     routes: [
         {path: "/", component: Home},
         // Put other routes here
-
+        {path: "/upload", component: Upload},
         // This is a catch all route in case none of the above matches
         {path: "*", component: NotFound}
     ]
