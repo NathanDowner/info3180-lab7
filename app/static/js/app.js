@@ -24,6 +24,7 @@ Vue.component('app-header', {
 const Upload = Vue.component('upload-form', {
     template:`
     <div>
+        <h1>Upload Form</h1>
         <div v-if="message !== '' && message !== undefined" class="alert alert-success" role="alert">{{ message }}</div>
         <div v-else-if="errors.length !== 0" class="alert alert-danger" role="alert">
             <ul>
