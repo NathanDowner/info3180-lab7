@@ -23,23 +23,38 @@ Vue.component('app-header', {
 
 const Upload = Vue.component('upload-form', {
     template:`
-    <form method="POST" enctype="multipart/form-data" @submit.prevent="uploadPhoto" id="uploadForm">
-        <div class="form-group shadow-textarea">
-            <label for="description">Description</label>
-            <textarea class="form-control z-depth-1" id="description" name="description" rows="3"></textarea>
+    <div>
+        <div v-if="message !== '' && message !== undefined">
+            <ul>
+                <li class="alert alert-success">{{ message }}</li>
+            </ul>
         </div>
-        <div class="form-group">
-            <label for="photo">Photo</label>
-            <input type="file" class="form-control" id="photo" name="photo"/>
-        </div>
+        <div v-else-if="errors.length !== 0">
+            <ul>
+                <li v-for="error in errors" class="alert alert-danger">{{ error }}</li>
+            </ul>
 
-        <button class=btn btn-primary btn-block my-4 type="submit" name="submit">Submit</button>
-    </form>
+        </div>
+        
+        <form method="POST" enctype="multipart/form-data" @submit.prevent="uploadPhoto" id="uploadForm">
+            <div class="form-group shadow-textarea">
+                <label for="description">Description</label>
+                <textarea class="form-control z-depth-1" id="description" name="description" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="photo">Photo</label>
+                <input type="file" class="form-control" id="photo" name="photo"/>
+            </div>
+
+            <button class=btn btn-primary btn-block my-4 type="submit" name="submit">Submit</button>
+        </form>
+    </div>
     `,
     methods: {
         uploadPhoto: function() {
             let uploadForm = document.querySelector('#uploadForm');
             let form_data = new FormData(uploadForm);
+            let self = this;
 
             fetch("/api/upload",{
                 method: 'POST',
@@ -51,8 +66,17 @@ const Upload = Vue.component('upload-form', {
             })
             .then(resp => resp.json())
             .then(jsonResponse => {
-                console.log(jsonResponse);
-            }).catch(err => console.log(err));
+                self.message = jsonResponse.message;
+            }).catch(err => {
+                console.log(err);
+                self.errors = err;
+            })
+        }
+    },
+    data: function() {
+        return {
+            message: '',
+            errors: []
         }
     }
 });
