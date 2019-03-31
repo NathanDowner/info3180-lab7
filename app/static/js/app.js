@@ -24,16 +24,11 @@ Vue.component('app-header', {
 const Upload = Vue.component('upload-form', {
     template:`
     <div>
-        <div v-if="message !== '' && message !== undefined">
+        <div v-if="message !== '' && message !== undefined" class="alert alert-success" role="alert">{{ message }}</div>
+        <div v-else-if="errors.length !== 0" class="alert alert-danger" role="alert">
             <ul>
-                <li class="alert alert-success">{{ message }}</li>
+                <li v-for="error in errors">{{ error }}</li>
             </ul>
-        </div>
-        <div v-else-if="errors.length !== 0">
-            <ul>
-                <li v-for="error in errors" class="alert alert-danger">{{ error }}</li>
-            </ul>
-
         </div>
         
         <form method="POST" enctype="multipart/form-data" @submit.prevent="uploadPhoto" id="uploadForm">
@@ -55,22 +50,26 @@ const Upload = Vue.component('upload-form', {
             let uploadForm = document.querySelector('#uploadForm');
             let form_data = new FormData(uploadForm);
             let self = this;
+            self.message = "";
+            self.errors = [];
 
             fetch("/api/upload",{
-                method: 'POST',
+                method: 'POST', 
                 body: form_data,
                 headers: {
                     'X-CSRFToken': token
                 },
                 credentials: 'same-origin'
             })
-            .then(resp => resp.json())
-            .then(jsonResponse => {
-                self.message = jsonResponse.message;
-            }).catch(err => {
-                console.log(err);
-                self.errors = err;
-            })
+                .then(resp => resp.json())
+                .then(jsonResponse => {
+                    if (jsonResponse.errors) {
+                        self.errors = jsonResponse.errors;
+                    } else {
+                        self.message = jsonResponse.message;
+                    }
+                })
+                .catch(error => console.log(error));
         }
     },
     data: function() {
